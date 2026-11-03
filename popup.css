@@ -1,0 +1,879 @@
+
+:root {
+  --bg: #032e23;
+  --panel: #065f46;
+  --panel-light: #087653;
+  --yellow: #fde047;
+  --cream: #fef3c7;
+  --muted: #d6cfa8;
+  --border: #fde047;
+  --danger: #ff8a80;
+
+  --radius: 12px;
+  --font: "Courier New", Courier, monospace;
+}
+
+/* =========================
+   DIMENSÕES DO POPUP
+   ========================= */
+
+html {
+  width: 380px !important;
+  min-width: 380px !important;
+  max-width: 380px !important;
+
+  height: 600px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  width: 380px !important;
+  min-width: 380px !important;
+  max-width: 380px !important;
+
+  height: 600px;
+  min-height: 600px;
+  max-height: 600px;
+
+  margin: 0;
+  padding: 0;
+
+  overflow: hidden;
+
+  background: var(--bg);
+  color: var(--cream);
+
+  font-family: var(--font);
+  font-size: 13px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    opacity 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================
+   APP SHELL
+   ========================= */
+
+.app-shell {
+  width: 380px;
+  min-width: 380px;
+  max-width: 380px;
+
+  height: 600px;
+
+  display: flex;
+  flex-direction: column;
+
+  border: 2px solid var(--yellow);
+
+  background: var(--bg);
+
+  overflow: hidden;
+}
+
+/* =========================
+   HEADER
+   ========================= */
+
+.header {
+  height: 58px;
+  min-height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 12px;
+
+  background: var(--bg);
+
+  border-bottom: 2px solid var(--yellow);
+}
+
+.logo {
+  margin: 0;
+
+  font-size: 23px;
+  font-weight: 900;
+
+  letter-spacing: -1px;
+
+  color: var(--yellow);
+
+  text-shadow: 2px 2px 0 #01412f;
+}
+
+.pixel-star {
+  display: inline-block;
+
+  font-size: 20px;
+
+  margin-right: 3px;
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--yellow);
+
+  background: var(--panel);
+  color: var(--yellow);
+
+  border-radius: 6px;
+
+  font-size: 20px;
+}
+
+/* =========================
+   MAIN / VIEWS
+   ========================= */
+
+main {
+  flex: 1;
+  min-height: 0;
+
+  width: 100%;
+
+  overflow: hidden;
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  height: 100%;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 10px;
+
+  gap: 12px;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--yellow) var(--bg);
+}
+
+.view::-webkit-scrollbar {
+  width: 6px;
+}
+
+.view::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+.view::-webkit-scrollbar-thumb {
+  background: var(--yellow);
+  border-radius: 6px;
+}
+
+/* =========================
+   INTRO
+   ========================= */
+
+.intro {
+  padding: 3px 0 4px;
+}
+
+.eyebrow {
+  color: var(--yellow);
+
+  font-size: 10px;
+  letter-spacing: 2px;
+
+  font-weight: bold;
+
+  margin: 0 0 6px;
+}
+
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+.intro h2,
+.result-heading h2 {
+  font-size: 19px;
+  line-height: 1.25;
+
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  color: var(--muted);
+
+  font-size: 11px;
+  line-height: 1.5;
+
+  margin-bottom: 0;
+}
+
+/* =========================
+   PANELS
+   ========================= */
+
+.panel {
+  width: 100%;
+  min-width: 0;
+
+  background: var(--panel);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  padding: 12px;
+
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.16);
+}
+
+.search-panel label {
+  display: block;
+
+  color: var(--yellow);
+
+  font-weight: bold;
+
+  margin-bottom: 9px;
+}
+
+.search-row {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  width: 100%;
+}
+
+/* =========================
+   INPUT
+   ========================= */
+
+input {
+  width: 100%;
+  min-width: 0;
+
+  border: 1px solid var(--yellow);
+  border-radius: 6px;
+
+  background: var(--bg);
+  color: var(--cream);
+
+  padding: 10px;
+}
+
+input::placeholder {
+  color: #9bb8a8;
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+
+.primary-btn {
+  width: 100%;
+
+  background: var(--yellow);
+  color: var(--bg);
+
+  border: 2px solid var(--yellow);
+  border-radius: 6px;
+
+  padding: 10px 12px;
+
+  font-weight: bold;
+
+  box-shadow: 2px 2px 0 #022017;
+}
+
+.secondary-btn {
+  width: 100%;
+
+  background: var(--panel);
+  color: var(--yellow);
+
+  border: 1px solid var(--yellow);
+  border-radius: 6px;
+
+  padding: 9px 10px;
+
+  font-weight: bold;
+}
+
+.secondary-btn:hover:not(:disabled) {
+  background: var(--panel-light);
+}
+
+.panel > .secondary-btn {
+  margin-top: 11px;
+}
+
+.profile-panel .secondary-btn {
+  margin-top: 8px;
+}
+
+.profile-copy,
+.about-panel > p,
+.about-panel li {
+  color: var(--cream);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.about-panel ul {
+  margin: 8px 0 12px;
+  padding-left: 18px;
+}
+
+.about-panel .hint {
+  margin-bottom: 0;
+}
+
+/* =========================
+   HINTS
+   ========================= */
+
+.hint {
+  color: var(--muted);
+
+  font-size: 10px;
+  line-height: 1.4;
+
+  margin: 8px 0 0;
+}
+
+/* =========================
+   SECTION HEADINGS
+   ========================= */
+
+.section-heading {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 11px;
+}
+
+.section-heading h3 {
+  font-size: 13px;
+
+  margin: 0;
+
+  color: var(--cream);
+}
+
+.section-icon {
+  color: var(--yellow);
+
+  font-size: 18px;
+}
+
+/* =========================
+   CHIPS
+   ========================= */
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 7px;
+}
+
+.chip {
+  background: var(--bg);
+  color: var(--cream);
+
+  border: 1px solid #74b49c;
+  border-radius: 20px;
+
+  padding: 6px 10px;
+
+  font-size: 11px;
+}
+
+.chip.selected {
+  background: var(--yellow);
+
+  border-color: var(--yellow);
+
+  color: var(--bg);
+
+  font-weight: bold;
+}
+
+/* =========================
+   FOOTER
+   ========================= */
+
+.footer {
+  min-height: 27px;
+  height: 27px;
+
+  width: 100%;
+
+  border-top: 1px solid rgba(253, 224, 71, 0.35);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 12px;
+
+  color: var(--muted);
+
+  font-size: 9px;
+}
+
+.footer-highlight {
+  color: var(--yellow);
+}
+
+/* =========================
+   RESULT VIEW
+   ========================= */
+
+.result-heading {
+  flex-shrink: 0;
+  margin-bottom: -4px;
+}
+
+.result-heading h2 {
+  color: var(--yellow);
+}
+
+/* =========================
+   LOADING
+   ========================= */
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 120px;
+
+  gap: 12px;
+
+  color: var(--yellow);
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+
+  border: 4px solid rgba(253, 224, 71, 0.2);
+  border-top-color: var(--yellow);
+
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================
+   ERROR
+   ========================= */
+
+.error-message {
+  padding: 12px;
+
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+
+  color: var(--danger);
+
+  background: rgba(255, 0, 0, 0.08);
+
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================
+   ANIME CARD
+   ========================= */
+
+.anime-card {
+  width: 100%;
+  min-width: 0;
+
+  background: var(--panel);
+
+  border: 1px solid var(--yellow);
+  border-radius: 10px;
+
+  overflow: hidden;
+
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+  touch-action: pan-y;
+}
+
+/* =========================
+   BANNER
+   ========================= */
+
+.anime-banner {
+  position: relative;
+
+  width: 100%;
+  height: 96px;
+
+  overflow: hidden;
+
+  background: linear-gradient(
+    135deg,
+    #065f46,
+    #032e23
+  );
+}
+
+.anime-banner img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+}
+
+.banner-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(3, 46, 35, 0.05),
+    rgba(3, 46, 35, 0.75)
+  );
+}
+
+.vote-badge {
+  position: absolute;
+
+  top: 9px;
+  right: 9px;
+
+  background: var(--yellow);
+  color: var(--bg);
+
+  padding: 5px 8px;
+
+  border-radius: 5px;
+
+  font-size: 10px;
+  font-weight: bold;
+
+  z-index: 2;
+}
+
+/* =========================
+   ANIME CONTENT
+   ========================= */
+
+.anime-content {
+  padding: 9px;
+}
+
+.anime-title-row {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 7px;
+}
+
+.anime-title-row h2 {
+  font-size: 17px;
+  line-height: 1.25;
+
+  margin: 0;
+
+  color: var(--yellow);
+
+  overflow-wrap: anywhere;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+
+  min-width: 8px;
+
+  margin-top: 5px;
+
+  background: var(--yellow);
+
+  border-radius: 50%;
+
+  box-shadow: 0 0 6px var(--yellow);
+}
+
+.native-title {
+  font-size: 10px;
+
+  color: var(--muted);
+
+  margin: 3px 0 7px;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================
+   STATS
+   ========================= */
+
+.stats-grid {
+  display: grid;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 5px;
+
+  margin-bottom: 7px;
+}
+
+.stat {
+  background: var(--bg);
+
+  border: 1px solid rgba(253, 224, 71, 0.35);
+  border-radius: 6px;
+
+  padding: 7px 4px;
+
+  text-align: center;
+
+  min-width: 0;
+}
+
+.stat-label {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 9px;
+
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  color: var(--yellow);
+
+  font-size: 11px;
+  font-weight: bold;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================
+   SYNOPSIS
+   ========================= */
+
+.synopsis-container h3 {
+  font-size: 12px;
+
+  color: var(--yellow);
+
+  margin-bottom: 6px;
+}
+
+.synopsis-wrapper {
+  max-height: 42px;
+
+  overflow: hidden;
+
+  transition: max-height 0.35s ease;
+}
+
+.synopsis-wrapper.expanded {
+  max-height: 420px;
+}
+
+.synopsis-wrapper p {
+  color: var(--cream);
+
+  font-size: 11px;
+  line-height: 1.6;
+
+  margin: 0;
+
+  overflow-wrap: anywhere;
+}
+
+.read-more-btn {
+  border: 0;
+
+  background: transparent;
+  color: var(--yellow);
+
+  padding: 3px 0;
+
+  font-weight: bold;
+
+  font-size: 10px;
+}
+
+/* =========================
+   CARD ACTIONS
+   ========================= */
+
+.card-actions {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  margin-top: 7px;
+}
+
+.match-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.action-btn {
+  min-width: 0;
+  min-height: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 1px solid var(--yellow);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--cream);
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.action-btn span:first-child {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.dismiss-btn span:first-child { color: #ff9b91; }
+.seen-btn span:first-child { color: #9be7b2; }
+.watchlist-btn { background: var(--yellow); color: var(--bg); }
+
+.swipe-hint {
+  margin: -2px 0 0;
+  color: var(--muted);
+  text-align: center;
+  font-size: 9px;
+}
+
+.next-btn {
+  width: 100%;
+}
+
+.card-actions .secondary-btn {
+  width: 100%;
+  padding: 7px 10px;
+}
+
+/* =========================
+   QUEUE
+   ========================= */
+
+.queue-info {
+  color: var(--muted);
+
+  text-align: center;
+
+  font-size: 10px;
+
+  padding: 3px;
+}
+
+.saved-list {
+  flex-shrink: 0;
+  background: var(--panel);
+  border: 1px solid rgba(253, 224, 71, 0.55);
+  border-radius: 7px;
+  padding: 8px 10px;
+  color: var(--cream);
+  font-size: 10px;
+}
+
+.saved-list summary {
+  cursor: pointer;
+  color: var(--yellow);
+  font-weight: bold;
+}
+
+.saved-list ul {
+  max-height: 90px;
+  overflow-y: auto;
+  margin: 8px 0 0;
+  padding-left: 18px;
+  line-height: 1.6;
+}
+
+/* =========================
+   ACCESSIBILITY
+   ========================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

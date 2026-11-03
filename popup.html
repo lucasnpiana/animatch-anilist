@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AniMatch</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+  <div class="app-shell">
+    <header class="header">
+      <button id="backBtn" class="icon-btn hidden" aria-label="Voltar">
+        ←
+      </button>
+
+      <h1 class="logo">
+        <span class="pixel-star">★</span>
+        AniMatch
+      </h1>
+
+      <button id="quickSearchBtn" class="icon-btn" aria-label="Perfil e sobre o AniMatch" title="Perfil e sobre o AniMatch">
+        ♙
+      </button>
+    </header>
+
+    <main>
+      <!-- HOME -->
+      <section id="homeView" class="view">
+        <div class="intro">
+          <p class="eyebrow">YOUR NEXT FAVORITE</p>
+          <h2>Encontre seu próximo anime.</h2>
+          <p class="subtitle">
+            Uma nova aventura começa com uma recomendação.
+          </p>
+        </div>
+
+        <form id="searchForm" class="panel search-panel">
+          <label for="animeSearch">Qual anime você curtiu?</label>
+
+          <div class="search-row">
+            <input
+              id="animeSearch"
+              type="text"
+              placeholder="Ex: Attack on Titan"
+              autocomplete="off"
+              required
+              maxlength="100"
+            >
+
+            <button type="submit" class="primary-btn">
+              Achar parecidos
+            </button>
+          </div>
+
+          <p class="hint">Recomendações oficiais da comunidade AniList.</p>
+        </form>
+
+        <section class="panel">
+          <div class="section-heading">
+            <span class="section-icon">◷</span>
+            <h3>Quanto tempo você tem?</h3>
+          </div>
+
+          <div id="durationChips" class="chip-group">
+            <button class="chip" data-duration="short">Curto</button>
+            <button class="chip" data-duration="medium">Médio</button>
+            <button class="chip" data-duration="long">Maratona</button>
+          </div>
+
+          <p class="hint">
+            Curto: 1–13 · Médio: 14–30 · Maratona: 31+
+          </p>
+
+          <button id="durationSearchBtn" class="secondary-btn">
+            Explorar por duração
+          </button>
+        </section>
+
+        <section class="panel">
+          <div class="section-heading">
+            <span class="section-icon">✦</span>
+            <h3>Escolha sua vibe</h3>
+          </div>
+
+          <div id="genreChips" class="chip-group">
+            <button class="chip" data-genre="Action">Action</button>
+            <button class="chip" data-genre="Psychological">Psychological</button>
+            <button class="chip" data-genre="Comedy">Comedy</button>
+            <button class="chip" data-genre="Drama">Drama</button>
+            <button class="chip" data-genre="Fantasy">Fantasy</button>
+            <button class="chip" data-genre="Sci-Fi">Sci-Fi</button>
+          </div>
+
+          <button id="genreSearchBtn" class="secondary-btn">
+            Explorar essa vibe
+          </button>
+        </section>
+
+        <div id="homeError" class="error-message hidden" role="alert"></div>
+      </section>
+
+      <section id="profileView" class="view hidden">
+        <div class="result-heading">
+          <p class="eyebrow">SEU ESPAÇO ANIMATCH</p>
+          <h2>Seu perfil otaku</h2>
+          <p class="subtitle">Conecte sua conta para recomendações mais pessoais.</p>
+        </div>
+
+        <section class="panel profile-panel">
+          <div class="section-heading">
+            <span class="section-icon">★</span>
+            <h3 id="profileGreeting">AniList</h3>
+          </div>
+          <p id="authDescription" class="profile-copy">Entre com o AniList para evitar recomendações de animes da sua lista e salvar títulos diretamente no seu perfil.</p>
+          <button id="connectAniListBtn" class="primary-btn">Conectar com AniList</button>
+          <button id="disconnectAniListBtn" class="secondary-btn hidden">Desconectar</button>
+          <p id="authMessage" class="hint" role="status"></p>
+        </section>
+
+        <section class="panel about-panel">
+          <div class="section-heading">
+            <span class="section-icon">✦</span>
+            <h3>Sobre o AniMatch</h3>
+          </div>
+          <p>O AniMatch ajuda você a encontrar seu próximo anime de acordo com o que já gosta, o tempo que tem e a vibe que procura.</p>
+          <ul>
+            <li>Recomendações da comunidade AniList</li>
+            <li>Descoberta por similaridade, duração ou gênero</li>
+            <li>Decisões rápidas: passar, já vi ou salvar</li>
+          </ul>
+          <p class="hint">Projeto independente, feito com carinho por fãs de anime. Os dados de catálogo vêm da API GraphQL do AniList.</p>
+        </section>
+      </section>
+
+      <!-- RESULTADOS -->
+      <section id="resultView" class="view hidden">
+        <div id="resultHeading" class="result-heading">
+          <p class="eyebrow">ANIMATCH DISCOVERY</p>
+          <h2 id="resultTitle">Sua próxima aventura</h2>
+          <p id="resultSubtitle" class="subtitle"></p>
+        </div>
+
+        <div id="loadingState" class="loading-state hidden">
+          <div class="spinner"></div>
+          <p>Consultando o AniList...</p>
+        </div>
+
+        <div id="resultError" class="error-message hidden" role="alert"></div>
+
+        <article id="animeCard" class="anime-card hidden">
+          <div class="anime-banner">
+            <img id="animeCover" src="" alt="Capa do anime">
+
+            <div class="banner-overlay"></div>
+
+            <span id="recommendationBadge" class="vote-badge">
+              Community
+            </span>
+          </div>
+
+          <div class="anime-content">
+            <div class="anime-title-row">
+              <span class="status-dot"></span>
+              <h2 id="animeTitle"></h2>
+            </div>
+
+            <p id="animeNativeTitle" class="native-title"></p>
+
+            <div id="animeStats" class="stats-grid"></div>
+
+            <div class="synopsis-container">
+              <h3>Sinopse</h3>
+
+              <div id="synopsisWrapper" class="synopsis-wrapper">
+                <p id="animeSynopsis"></p>
+              </div>
+
+              <button
+                id="readMoreBtn"
+                class="read-more-btn hidden"
+                aria-expanded="false"
+              >
+                Ler Mais ↓
+              </button>
+            </div>
+
+            <div class="card-actions">
+              <div class="match-actions" aria-label="O que achou deste anime?">
+                <button id="dismissBtn" class="action-btn dismiss-btn" title="Não tenho interesse">
+                  <span aria-hidden="true">✕</span><span>Passar</span>
+                </button>
+                <button id="seenBtn" class="action-btn seen-btn" title="Marcar como já visto">
+                  <span aria-hidden="true">✓</span><span>Já vi</span>
+                </button>
+                <button id="watchlistBtn" class="action-btn watchlist-btn" title="Adicionar à minha lista">
+                  <span aria-hidden="true">＋</span><span>Minha lista</span>
+                </button>
+              </div>
+              <p class="swipe-hint">← passar · adicionar à lista →</p>
+
+              <button id="crunchyrollBtn" class="secondary-btn">
+                Assistir na Crunchyroll
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <div id="queueInfo" class="queue-info hidden"></div>
+        <details id="savedList" class="saved-list hidden">
+          <summary>Minha lista <span id="savedListCount">0</span></summary>
+          <ul id="savedListItems"></ul>
+        </details>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>ANI<span class="footer-highlight">MATCH</span></span>
+      <span>Powered by AniList</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

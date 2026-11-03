@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conectar AniList · AniMatch</title>
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+  <main class="auth-shell">
+    <header><span>★</span><h1>AniMatch</h1></header>
+    <section class="panel">
+      <p class="eyebrow">CONECTAR PERFIL</p>
+      <h2>Sincronize uma lista pública</h2>
+      <p>Informe o nome de usuário ou o link do perfil. O AniMatch vai ignorar recomendações que já aparecem na lista pública.</p>
+      <label for="profileInput">Usuário ou link do perfil AniList</label>
+      <input id="profileInput" autocomplete="off" placeholder="Ex.: https://anilist.co/user/usuario/">
+      <p id="publicStatus" role="status" class="status"></p>
+      <button id="syncPublicBtn" class="primary">Buscar lista pública</button>
+      <details class="private-login">
+        <summary>Precisa sincronizar uma lista privada?</summary>
+        <p>Para acessar dados privados ou salvar animes diretamente na conta, conecte pelo OAuth do AniList.</p>
+        <label for="clientId">Client ID do aplicativo AniList</label>
+        <input id="clientId" autocomplete="off" placeholder="Ex.: 12345">
+        <p class="hint">Crie um aplicativo nas configurações de desenvolvedor do AniList. Cadastre este endereço de retorno:</p>
+        <code id="redirectUri"></code>
+        <button id="loginBtn" class="secondary">Entrar e sincronizar conta</button>
+        <p id="status" role="status" class="status"></p>
+      </details>
+    </section>
+    <section class="panel about">
+      <p class="eyebrow">SOBRE O PROJETO</p>
+      <h2>Descubra seu próximo anime</h2>
+      <p>O AniMatch é uma extensão independente que combina recomendações da comunidade, duração e gêneros para ajudar você a encontrar sua próxima série.</p>
+      <p>O perfil público é consultado pela API GraphQL do AniList. Para listas privadas, a autorização é feita diretamente pelo AniList.</p>
+    </section>
+  </main>
+  <script src="auth.js"></script>
+</body>
+</html>

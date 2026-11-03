@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "AniMatch",
+  "version": "1.0.0",
+  "description": "Descubra animes com recomendações dinâmicas da comunidade AniList.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "identity"
+  ],
+  "host_permissions": [
+    "https://graphql.anilist.co/*",
+    "https://anilist.co/*"
+  ],
+  "action": {
+    "default_title": "AniMatch",
+    "default_popup": "popup.html"
+  }
+}
