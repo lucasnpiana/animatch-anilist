@@ -1,26 +1,51 @@
-# AniMatch
+<div align="center">
+  <img src="icons/logo.png" alt="Logo AniMatch" width="150">
+  <h1>AniMatch</h1>
+  <p>Encontre seu próximo anime de acordo com seus gostos, seu tempo e sua vibe.</p>
+</div>
 
-Extensão de navegador para descobrir animes usando recomendações da comunidade AniList, filtros por gênero e duração e uma fila de descoberta personalizada.
+<p align="center">
+  Uma extensão de navegador que transforma a descoberta de animes em uma experiência simples e personalizada, com dados da comunidade AniList.
+</p>
 
-## Recursos
+## O que você pode fazer
 
-- Recomendações relacionadas a um anime informado pelo usuário.
-- Exploração por duração e gênero.
-- Ações para passar, marcar como já visto ou salvar na lista local.
-- Sincronização de uma lista pública do AniList para evitar recomendações repetidas.
-- Login OAuth opcional para sincronizar listas privadas e salvar animes na conta.
+- **Encontrar animes parecidos** com um título que você curtiu.
+- **Explorar por duração**, de séries curtas a maratonas.
+- **Filtrar por gênero** e descobrir novas vibes.
+- **Passar, marcar como visto ou salvar** recomendações em uma fila inspirada em apps de descoberta.
+- **Sincronizar uma lista pública do AniList** para pular animes que já estão nela.
+- **Alternar entre português e inglês** e escolher o tema claro ou escuro.
 
-## Instalar no Chrome
+## Instalação no Chrome
 
-1. Baixe ou clone este repositório.
-2. Abra `chrome://extensions`.
+1. Baixe este repositório pelo botão **Code → Download ZIP** ou clone-o:
+
+   ```bash
+   git clone https://github.com/lucasnpiana/animatch-anilist.git
+   ```
+
+2. Abra `chrome://extensions` no Chrome.
 3. Ative **Modo do desenvolvedor**.
-4. Clique em **Carregar sem compactação** e selecione a pasta do projeto.
+4. Clique em **Carregar sem compactação**.
+5. Selecione a pasta do AniMatch.
 
-## Sincronizar uma lista pública
+## Sincronizar seu AniList
 
-Abra o perfil dentro da extensão, informe o nome de usuário ou o link do perfil AniList e clique em **Buscar lista pública**. A lista precisa estar pública.
+Abra a tela de perfil da extensão e informe seu nome de usuário ou o link do perfil. A sincronização pública funciona quando a lista de animes está visível publicamente. Os títulos sincronizados são ignorados nas recomendações.
 
-## API
+Para acessar uma lista privada ou salvar títulos diretamente na sua conta, use a opção de conexão OAuth. Ela requer um aplicativo registrado nas configurações de desenvolvedor do AniList e seu Client ID.
 
-O catálogo e as recomendações usam a API GraphQL do AniList: <https://graphql.anilist.co>.
+## Tecnologias
+
+- HTML, CSS e JavaScript
+- Chrome Extension Manifest V3
+- API GraphQL do AniList
+
+## Dados e privacidade
+
+O AniMatch consulta o catálogo e as recomendações pela API do AniList. Preferências como idioma, tema e ações da fila são armazenadas no navegador. A sincronização de um perfil público consulta os dados públicos informados pelo usuário.
+
+## Desenvolvido por
+
+Lucas Piana · [GitHub](https://github.com/lucasnpiana)
