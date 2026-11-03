@@ -714,6 +714,7 @@ input::placeholder {
 .anime-card {
   width: 100%;
   min-width: 0;
+  flex-shrink: 0;
 
   background: var(--panel);
 
@@ -933,6 +934,7 @@ input::placeholder {
 .card-actions {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 
   gap: 8px;
 
