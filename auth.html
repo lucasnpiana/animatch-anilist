@@ -3,37 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conectar AniList · AniMatch</title>
+  <meta name="theme-color" content="#f8f7ef">
+  <title>Perfil AniList · AniMatch</title>
   <link rel="stylesheet" href="auth.css">
 </head>
 <body>
-  <main class="auth-shell">
-    <header><span>★</span><h1>AniMatch</h1></header>
-    <section class="panel">
-      <p class="eyebrow">CONECTAR PERFIL</p>
-      <h2>Sincronize uma lista pública</h2>
-      <p>Informe o nome de usuário ou o link do perfil. O AniMatch vai ignorar recomendações que já aparecem na lista pública.</p>
+  <main class="page-shell">
+    <header class="page-header">
+      <a class="brand" href="#top" aria-label="AniMatch">
+        <img src="icons/logo.png" alt="">
+        <span>AniMatch</span>
+      </a>
+      <span class="header-label">PERFIL ANILIST</span>
+    </header>
+
+    <div id="top" class="intro">
+      <p class="eyebrow">SUA PRÓXIMA DESCOBERTA</p>
+      <h1>Seu AniList,<br><span>do seu jeito.</span></h1>
+      <p>Sincronize seu perfil para deixar de receber recomendações de animes que já estão na sua lista.</p>
+    </div>
+
+    <section class="panel sync-panel" aria-labelledby="syncTitle">
+      <div class="section-heading">
+        <span class="section-icon" aria-hidden="true">↗</span>
+        <div>
+          <p class="eyebrow">CONECTAR PERFIL</p>
+          <h2 id="syncTitle">Sincronize uma lista pública</h2>
+        </div>
+      </div>
+      <p class="panel-copy">Informe seu nome de usuário ou cole o link do perfil. Não precisa fazer login nem compartilhar sua senha.</p>
+
       <label for="profileInput">Usuário ou link do perfil AniList</label>
-      <input id="profileInput" autocomplete="off" placeholder="Ex.: https://anilist.co/user/usuario/">
-      <p id="publicStatus" role="status" class="status"></p>
-      <button id="syncPublicBtn" class="primary">Buscar lista pública</button>
-      <details class="private-login">
+      <input id="profileInput" autocomplete="off" placeholder="https://anilist.co/user/seu-perfil/">
+      <p id="publicStatus" role="status" aria-live="polite" class="status">O resultado da sincronização aparecerá aqui.</p>
+      <button id="syncPublicBtn" class="primary">Buscar lista pública <span aria-hidden="true">→</span></button>
+
+      <div class="privacy-note"><span aria-hidden="true">✓</span> Só consultamos dados que já são públicos.</div>
+
+      <details class="private-login" id="privateLogin">
         <summary>Precisa sincronizar uma lista privada?</summary>
-        <p>Para acessar dados privados ou salvar animes diretamente na conta, conecte pelo OAuth do AniList.</p>
+        <p>Para acessar uma lista privada ou salvar animes diretamente na conta, autorize o AniMatch pelo AniList.</p>
         <label for="clientId">Client ID do aplicativo AniList</label>
         <input id="clientId" autocomplete="off" placeholder="Ex.: 12345">
-        <p class="hint">Crie um aplicativo nas configurações de desenvolvedor do AniList. Cadastre este endereço de retorno:</p>
+        <p class="hint">Crie um aplicativo nas <a href="https://anilist.co/settings/developer" target="_blank" rel="noreferrer">configurações de desenvolvedor</a> e cadastre este endereço de retorno:</p>
         <code id="redirectUri"></code>
         <button id="loginBtn" class="secondary">Entrar e sincronizar conta</button>
-        <p id="status" role="status" class="status"></p>
+        <p id="status" role="status" aria-live="polite" class="status"></p>
       </details>
     </section>
-    <section class="panel about">
-      <p class="eyebrow">SOBRE O PROJETO</p>
-      <h2>Descubra seu próximo anime</h2>
-      <p>O AniMatch é uma extensão independente que combina recomendações da comunidade, duração e gêneros para ajudar você a encontrar sua próxima série.</p>
-      <p>O perfil público é consultado pela API GraphQL do AniList. Para listas privadas, a autorização é feita diretamente pelo AniList.</p>
+
+    <section class="panel about-panel" aria-labelledby="aboutTitle">
+      <div class="about-icon" aria-hidden="true">✦</div>
+      <div>
+        <p class="eyebrow">SOBRE O PROJETO</p>
+        <h2 id="aboutTitle">Descubra seu próximo anime.</h2>
+        <p>O AniMatch ajuda você a encontrar novas histórias por similaridade, duração e gênero, usando recomendações da comunidade AniList.</p>
+      </div>
     </section>
+
+    <footer class="page-footer"><span>ANIMATCH</span><span>Powered by AniList</span></footer>
   </main>
   <script src="auth.js"></script>
 </body>
