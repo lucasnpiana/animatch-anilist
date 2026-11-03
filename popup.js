@@ -1,13 +1,14 @@
-
 "use strict";
 
 /* =========================================================
    AniMatch — Anime Discovery
    Manifest V3 | AniList GraphQL
+   Idiomas: PT / EN (textos em i18n.js)
    ========================================================= */
 
 const API_URL = "https://graphql.anilist.co";
 const REQUEST_TIMEOUT = 15000;
+const TRANSLATE_TIMEOUT = 10000;
 const PAGE_SIZE = 25;
 
 /* =========================================================
@@ -55,7 +56,9 @@ const animeStats = $("#animeStats");
 
 const animeSynopsis = $("#animeSynopsis");
 const synopsisWrapper = $("#synopsisWrapper");
-const readMoreBtn = $("#readMoreBtn");
+const synopsisTools = $("#synopsisTools");
+const synopsisNote = $("#synopsisNote");
+const synopsisToggleBtn = $("#synopsisToggleBtn");
 
 const crunchyrollBtn = $("#crunchyrollBtn");
 const dismissBtn = $("#dismissBtn");
@@ -66,6 +69,84 @@ const queueInfo = $("#queueInfo");
 const savedList = $("#savedList");
 const savedListCount = $("#savedListCount");
 const savedListItems = $("#savedListItems");
+
+const themeBtn = $("#themeBtn");
+const langBtn = $("#langBtn");
+
+/* =========================================================
+   ERRORS (guardados como chave de tradução, para
+   acompanhar a troca de idioma)
+   ========================================================= */
+
+class AppError extends Error {
+  constructor(key, vars) {
+    super(key);
+    this.key = key;
+    this.vars = vars;
+  }
+}
+
+const errorState = new Map();
+
+function renderError(container) {
+  const err = errorState.get(container);
+
+  if (!err) return;
+
+  container.textContent = err.key ? t(err.key, err.vars) : err.raw;
+  container.classList.remove("hidden");
+}
+
+function setError(container, err) {
+  errorState.set(container, err);
+  renderError(container);
+}
+
+function clearError(container) {
+  errorState.delete(container);
+
+  container.textContent = "";
+  container.classList.add("hidden");
+}
+
+/* =========================================================
+   THEME
+   ========================================================= */
+
+const systemDarkQuery = matchMedia("(prefers-color-scheme: dark)");
+
+function getSavedTheme() {
+  try { return localStorage.getItem("animatchTheme"); } catch { return null; }
+}
+
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme")
+    || (systemDarkQuery.matches ? "dark" : "light");
+}
+
+function updateThemeButton() {
+  const theme = currentTheme();
+
+  themeBtn.textContent = theme === "dark" ? "\u2600\uFE0E" : "\u263E\uFE0E";
+  themeBtn.title = theme === "dark" ? t("theme.toLight") : t("theme.toDark");
+  themeBtn.setAttribute("aria-label", themeBtn.title);
+}
+
+function applyTheme(theme, persist = true) {
+  document.documentElement.setAttribute("data-theme", theme);
+
+  updateThemeButton();
+
+  if (persist) {
+    try { localStorage.setItem("animatchTheme", theme); } catch {}
+  }
+}
+
+applyTheme(getSavedTheme() || currentTheme(), false);
+
+themeBtn.addEventListener("click", () => {
+  applyTheme(currentTheme() === "dark" ? "light" : "dark");
+});
 
 /* =========================================================
    STATE
@@ -84,12 +165,21 @@ const state = {
   requestId: 0,
 
   currentAnime: null,
-  synopsisExpanded: false,
+  showOriginal: false,
+
   seenIds: new Set(),
   dismissedIds: new Set(),
   watchlist: [],
   aniListAnimeIds: new Set(),
-  swipeStartX: null
+  swipeStartX: null,
+
+  /* o que o cabeçalho de resultados deve mostrar */
+  heading: { mode: "default" },
+
+  /* perfil AniList */
+  profileUser: null,
+  profileSource: null,
+  authMsgKey: null
 };
 
 let anilistToken = null;
@@ -97,7 +187,9 @@ let anilistToken = null;
 chrome.storage.local.get(["animatchAniListToken", "animatchAniListUser", "animatchAniListAnimeIds", "animatchAniListSource"], (saved) => {
   anilistToken = saved.animatchAniListToken || null;
   state.aniListAnimeIds = new Set(saved.animatchAniListAnimeIds || []);
-  if (saved.animatchAniListUser) showConnectedProfile(saved.animatchAniListUser, saved.animatchAniListSource);
+  if (saved.animatchAniListUser) {
+    showConnectedProfile(saved.animatchAniListUser, saved.animatchAniListSource);
+  }
 });
 
 chrome.storage.local.get(["animatchSeen", "animatchDismissed", "animatchWatchlist"], (saved) => {
@@ -105,6 +197,47 @@ chrome.storage.local.get(["animatchSeen", "animatchDismissed", "animatchWatchlis
   state.dismissedIds = new Set(saved.animatchDismissed || []);
   state.watchlist = saved.animatchWatchlist || [];
   renderSavedList();
+});
+
+/* =========================================================
+   LANGUAGE
+   ========================================================= */
+
+function updateLangButton() {
+  langBtn.querySelectorAll(".lang-opt").forEach((opt) => {
+    opt.classList.toggle("active", opt.dataset.lang === currentLang);
+  });
+
+  langBtn.title = t("lang.switch");
+  langBtn.setAttribute("aria-label", t("lang.switch"));
+}
+
+function refreshDynamicTexts() {
+  applyStaticTranslations();
+  updateThemeButton();
+  updateLangButton();
+  renderProfile();
+  renderResultHeading();
+
+  renderError(homeError);
+  renderError(resultError);
+
+  if (state.currentAnime && !animeCard.classList.contains("hidden")) {
+    fillCard(state.currentAnime);
+  }
+}
+
+function setLanguage(lang) {
+  setLanguageValue(lang);
+
+  state.showOriginal = false;
+  failedTranslations.clear();
+
+  refreshDynamicTexts();
+}
+
+langBtn.addEventListener("click", () => {
+  setLanguage(currentLang === "pt" ? "en" : "pt");
 });
 
 /* =========================================================
@@ -223,9 +356,7 @@ async function graphqlRequest(query, variables = {}) {
     try {
       json = await response.json();
     } catch {
-      throw new Error(
-        `Resposta inválida do AniList: HTTP ${response.status}`
-      );
+      throw new AppError("err.invalidResponse", { status: response.status });
     }
 
     if (!response.ok || json.errors?.length) {
@@ -233,10 +364,11 @@ async function graphqlRequest(query, variables = {}) {
         ?.map((error) => error.message)
         .join(" | ");
 
-      throw new Error(
-        details ||
-        `AniList respondeu com HTTP ${response.status}.`
-      );
+      if (details) {
+        throw new Error(details);
+      }
+
+      throw new AppError("err.http", { status: response.status });
     }
 
     if (currentRequestId !== state.requestId) {
@@ -247,9 +379,7 @@ async function graphqlRequest(query, variables = {}) {
     }
 
     if (!json.data) {
-      throw new Error(
-        "A API não retornou dados."
-      );
+      throw new AppError("err.noData");
     }
 
     return json.data;
@@ -257,18 +387,14 @@ async function graphqlRequest(query, variables = {}) {
   } catch (error) {
     if (error.name === "AbortError") {
       if (timedOut) {
-        throw new Error(
-          "O AniList demorou demais para responder. Tente novamente."
-        );
+        throw new AppError("err.timeout");
       }
 
       throw error;
     }
 
     if (error instanceof TypeError) {
-      throw new Error(
-        "Falha de conexão. Verifique sua internet."
-      );
+      throw new AppError("err.connection");
     }
 
     throw error;
@@ -284,30 +410,241 @@ async function graphqlRequest(query, variables = {}) {
 
 /* =========================================================
    SANITIZE DESCRIPTION
+   Devolve texto puro ("" quando não há sinopse)
    ========================================================= */
 
 function sanitizeDescription(description) {
   if (!description) {
-    return "Sinopse não disponível.";
+    return "";
   }
 
   const parser = new DOMParser();
 
-  const document = parser.parseFromString(
+  const doc = parser.parseFromString(
     description,
     "text/html"
   );
 
-  document.querySelectorAll(
+  doc.querySelectorAll(
     "script, style, iframe, object, embed"
   ).forEach((element) => {
     element.remove();
   });
 
-  return (document.body.textContent || "")
+  doc.querySelectorAll("br").forEach((br) => {
+    br.replaceWith(" ");
+  });
+
+  return (doc.body.textContent || "")
     .replace(/\s+/g, " ")
     .trim();
 }
+
+/* =========================================================
+   SYNOPSIS TRANSLATION (EN -> PT-BR)
+   1) Google Translate (endpoint público gtx)
+   2) MyMemory como reserva
+   ========================================================= */
+
+const translationCache = new Map();
+const pendingTranslations = new Set();
+const failedTranslations = new Set();
+
+function splitIntoChunks(text, maxLen) {
+  const sentences = text.split(/(?<=[.!?…])\s+/);
+
+  const chunks = [];
+  let current = "";
+
+  for (let sentence of sentences) {
+    while (sentence.length > maxLen) {
+      let cut = sentence.lastIndexOf(" ", maxLen);
+
+      if (cut <= 0) cut = maxLen;
+
+      if (current) {
+        chunks.push(current);
+        current = "";
+      }
+
+      chunks.push(sentence.slice(0, cut));
+      sentence = sentence.slice(cut).trim();
+    }
+
+    if (!sentence) continue;
+
+    if ((current + " " + sentence).trim().length > maxLen) {
+      if (current) chunks.push(current);
+      current = sentence;
+    } else {
+      current = current ? `${current} ${sentence}` : sentence;
+    }
+  }
+
+  if (current) chunks.push(current);
+
+  return chunks;
+}
+
+async function fetchJson(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TRANSLATE_TIMEOUT);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    return await response.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function translateChunkGoogle(chunk) {
+  const url =
+    "https://translate.googleapis.com/translate_a/single" +
+    "?client=gtx&sl=en&tl=pt&dt=t&q=" +
+    encodeURIComponent(chunk);
+
+  const data = await fetchJson(url);
+
+  if (!Array.isArray(data?.[0])) {
+    throw new Error("Resposta de tradução inválida.");
+  }
+
+  return data[0].map((part) => part?.[0] || "").join("");
+}
+
+function decodeEntities(text) {
+  const area = document.createElement("textarea");
+  area.innerHTML = text;
+  return area.value;
+}
+
+async function translateChunkMyMemory(chunk) {
+  const url =
+    "https://api.mymemory.translated.net/get?q=" +
+    encodeURIComponent(chunk) +
+    "&langpair=en%7Cpt-BR";
+
+  const data = await fetchJson(url);
+  const text = data?.responseData?.translatedText;
+
+  if (Number(data?.responseStatus) !== 200 || !text) {
+    throw new Error("Resposta de tradução inválida.");
+  }
+
+  return decodeEntities(text);
+}
+
+async function translateToPortuguese(text) {
+  const join = (parts) => parts.join(" ").replace(/\s+/g, " ").trim();
+
+  try {
+    const parts = await Promise.all(
+      splitIntoChunks(text, 1000).map(translateChunkGoogle)
+    );
+
+    return join(parts);
+  } catch {
+    const parts = await Promise.all(
+      splitIntoChunks(text, 450).map(translateChunkMyMemory)
+    );
+
+    return join(parts);
+  }
+}
+
+async function startTranslation(anime, original) {
+  if (pendingTranslations.has(anime.id)) return;
+
+  pendingTranslations.add(anime.id);
+
+  try {
+    const translated = await translateToPortuguese(original);
+
+    translationCache.set(anime.id, translated);
+  } catch {
+    failedTranslations.add(anime.id);
+  } finally {
+    pendingTranslations.delete(anime.id);
+  }
+
+  if (state.currentAnime?.id === anime.id && currentLang === "pt") {
+    renderSynopsis();
+  }
+}
+
+function showSynopsisTools(note, toggleLabel) {
+  synopsisNote.textContent = note;
+
+  if (toggleLabel) {
+    synopsisToggleBtn.textContent = toggleLabel;
+    synopsisToggleBtn.classList.remove("hidden");
+  } else {
+    synopsisToggleBtn.classList.add("hidden");
+  }
+
+  synopsisTools.classList.remove("hidden");
+}
+
+function renderSynopsis() {
+  const anime = state.currentAnime;
+
+  if (!anime) return;
+
+  const original = sanitizeDescription(anime.description);
+
+  synopsisTools.classList.add("hidden");
+  synopsisNote.textContent = "";
+
+  if (!original) {
+    animeSynopsis.textContent = t("synopsis.none");
+    return;
+  }
+
+  /* Inglês: texto original, sem tradução */
+  if (currentLang !== "pt") {
+    animeSynopsis.textContent = original;
+    synopsisWrapper.scrollTop = 0;
+    return;
+  }
+
+  const cached = translationCache.get(anime.id);
+
+  if (cached) {
+    if (state.showOriginal) {
+      animeSynopsis.textContent = original;
+      showSynopsisTools(t("synopsis.original"), t("synopsis.showTranslation"));
+    } else {
+      animeSynopsis.textContent = cached;
+      showSynopsisTools(t("synopsis.machine"), t("synopsis.showOriginal"));
+    }
+
+    synopsisWrapper.scrollTop = 0;
+    return;
+  }
+
+  /* Ainda sem tradução: mostra o original e traduz em segundo plano */
+  animeSynopsis.textContent = original;
+  synopsisWrapper.scrollTop = 0;
+
+  if (failedTranslations.has(anime.id)) {
+    showSynopsisTools(t("synopsis.failed"), null);
+    return;
+  }
+
+  showSynopsisTools(t("synopsis.translating"), null);
+  startTranslation(anime, original);
+}
+
+synopsisToggleBtn.addEventListener("click", () => {
+  state.showOriginal = !state.showOriginal;
+  renderSynopsis();
+});
 
 /* =========================================================
    VIEW MANAGEMENT
@@ -341,7 +678,7 @@ function showLoading() {
 
   animeCard.classList.add("hidden");
 
-  resultError.classList.add("hidden");
+  clearError(resultError);
   queueInfo.classList.add("hidden");
 
   [dismissBtn, seenBtn, watchlistBtn].forEach((button) => { button.disabled = true; });
@@ -353,16 +690,38 @@ function hideLoading() {
   [dismissBtn, seenBtn, watchlistBtn].forEach((button) => { button.disabled = false; });
 }
 
-function showError(container, message) {
-  container.textContent = message;
+/* =========================================================
+   RESULT HEADING
+   ========================================================= */
 
-  container.classList.remove("hidden");
-}
+function renderResultHeading() {
+  const heading = state.heading;
 
-function clearError(container) {
-  container.textContent = "";
+  if (heading.mode === "searching") {
+    resultTitle.textContent = t("result.similarTitle");
+    resultSubtitle.textContent = t("result.searching", { q: heading.query });
+    return;
+  }
 
-  container.classList.add("hidden");
+  if (heading.mode === "similar") {
+    resultTitle.textContent = t("result.similarTitle");
+    resultSubtitle.textContent = t("result.basedOn", { name: heading.name });
+    return;
+  }
+
+  if (heading.mode === "filter") {
+    const parts = [];
+
+    if (heading.genre) parts.push(t(`genre.${heading.genre}`));
+    if (heading.duration) parts.push(t(`duration.${heading.duration}`));
+
+    resultTitle.textContent = parts.join(" · ");
+    resultSubtitle.textContent = t("result.filterSubtitle");
+    return;
+  }
+
+  resultTitle.textContent = t("result.defaultTitle");
+  resultSubtitle.textContent = "";
 }
 
 /* =========================================================
@@ -373,10 +732,7 @@ async function searchAnimeByName(name) {
   const query = name.trim();
 
   if (!query) {
-    showError(
-      homeError,
-      "Digite o nome de um anime."
-    );
+    setError(homeError, { key: "err.enterName" });
 
     return;
   }
@@ -385,10 +741,8 @@ async function searchAnimeByName(name) {
 
   showLoading();
 
-  resultTitle.textContent = "Animes parecidos";
-
-  resultSubtitle.textContent =
-    `Buscando recomendações para "${query}"...`;
+  state.heading = { mode: "searching", query };
+  renderResultHeading();
 
   try {
     const searchData = await graphqlRequest(
@@ -401,13 +755,11 @@ async function searchAnimeByName(name) {
     const sourceAnime = searchData.Media;
 
     if (!sourceAnime) {
-      throw new Error(
-        "Anime não encontrado. Verifique o nome."
-      );
+      throw new AppError("err.notFound");
     }
 
-    resultSubtitle.textContent =
-      `Recomendações baseadas em ${getAnimeTitle(sourceAnime)}.`;
+    state.heading = { mode: "similar", name: getAnimeTitle(sourceAnime) };
+    renderResultHeading();
 
     const recommendationData = await graphqlRequest(
       RECOMMENDATIONS_QUERY,
@@ -430,9 +782,7 @@ async function searchAnimeByName(name) {
       }));
 
     if (!recommendations.length) {
-      throw new Error(
-        "Nenhuma recomendação comunitária encontrada."
-      );
+      throw new AppError("err.noRecs");
     }
 
     state.queue = recommendations;
@@ -559,10 +909,7 @@ async function searchByFilters() {
   const duration = state.selectedDuration;
 
   if (!genre && !duration) {
-    showError(
-      homeError,
-      "Selecione uma duração ou uma vibe."
-    );
+    setError(homeError, { key: "err.pickFilter" });
 
     return;
   }
@@ -571,29 +918,8 @@ async function searchByFilters() {
 
   showLoading();
 
-  const durationLabels = {
-    short: "Curto",
-    medium: "Médio",
-    long: "Maratona"
-  };
-
-  const titleParts = [];
-
-  if (genre) {
-    titleParts.push(genre);
-  }
-
-  if (duration) {
-    titleParts.push(
-      durationLabels[duration]
-    );
-  }
-
-  resultTitle.textContent =
-    titleParts.join(" · ");
-
-  resultSubtitle.textContent =
-    "Animes populares encontrados no AniList.";
+  state.heading = { mode: "filter", genre, duration };
+  renderResultHeading();
 
   try {
     const { query, variables } =
@@ -611,9 +937,7 @@ async function searchByFilters() {
       data.Page?.media || [];
 
     if (!results.length) {
-      throw new Error(
-        "Nenhum anime encontrado com esses filtros."
-      );
+      throw new AppError("err.noFilterResults");
     }
 
     state.queue = results.map((anime) => ({
@@ -639,7 +963,7 @@ function getAnimeTitle(anime) {
   return (
     anime.title?.english ||
     anime.title?.romaji ||
-    "Anime sem título"
+    t("card.untitled")
   );
 }
 
@@ -667,7 +991,7 @@ function formatPopularity(popularity) {
 
   return Number(
     popularity
-  ).toLocaleString("pt-BR");
+  ).toLocaleString(currentLocale());
 }
 
 function formatEpisodes(episodes) {
@@ -689,15 +1013,62 @@ function formatFormat(format) {
 
 function formatRecommendationRating(rating) {
   if (rating == null) {
-    return "AniList";
+    return t("badge.anilist");
   }
 
-  return `${rating} Votos`;
+  return t("badge.votes", { n: rating });
 }
 
 /* =========================================================
    RENDER CURRENT ANIME
    ========================================================= */
+
+function renderQueueInfo() {
+  queueInfo.textContent = t("queue.info", {
+    i: state.currentIndex + 1,
+    n: state.queue.length,
+    w: state.watchlist.length
+  });
+
+  queueInfo.classList.remove("hidden");
+}
+
+/* Preenche o card com os textos do idioma atual */
+function fillCard(anime) {
+  animeTitle.textContent =
+    getAnimeTitle(anime);
+
+  animeNativeTitle.textContent =
+    anime.title?.romaji || "";
+
+  const cover = getAnimeCover(anime);
+
+  if (cover) {
+    if (animeCover.getAttribute("src") !== cover) {
+      animeCover.src = cover;
+    }
+  } else {
+    animeCover.removeAttribute("src");
+  }
+
+  animeCover.alt =
+    t("card.coverAlt", { title: getAnimeTitle(anime) });
+
+  animeCover.onerror = () => {
+    animeCover.removeAttribute("src");
+  };
+
+  recommendationBadge.textContent =
+    formatRecommendationRating(
+      anime.recommendationRating
+    );
+
+  renderStats(anime);
+
+  renderSynopsis();
+
+  renderQueueInfo();
+}
 
 function renderCurrentAnime() {
   hideLoading();
@@ -714,7 +1085,7 @@ function renderCurrentAnime() {
   const anime = state.queue[state.currentIndex];
 
   if (!anime) {
-    showError(resultError, "Você passou por todos os animes desta seleção. Tente outra busca ou filtro.");
+    setError(resultError, { key: "err.allSeen" });
 
     animeCard.classList.add("hidden");
 
@@ -723,76 +1094,13 @@ function renderCurrentAnime() {
 
   state.currentAnime = anime;
 
-  state.synopsisExpanded = false;
+  state.showOriginal = false;
 
   animeCard.classList.remove("hidden");
 
-  animeTitle.textContent =
-    getAnimeTitle(anime);
+  fillCard(anime);
 
-  animeNativeTitle.textContent =
-    anime.title?.romaji || "";
-
-  const cover = getAnimeCover(anime);
-
-  if (cover) {
-    animeCover.src = cover;
-  } else {
-    animeCover.removeAttribute("src");
-  }
-
-  animeCover.alt =
-    `Capa de ${getAnimeTitle(anime)}`;
-
-  animeCover.onerror = () => {
-    animeCover.removeAttribute("src");
-  };
-
-  recommendationBadge.textContent =
-    formatRecommendationRating(
-      anime.recommendationRating
-    );
-
-  renderStats(anime);
-
-  animeSynopsis.textContent =
-    sanitizeDescription(
-      anime.description
-    );
-
-  synopsisWrapper.classList.remove(
-    "expanded"
-  );
-
-  readMoreBtn.textContent =
-    "Ler Mais ↓";
-
-  readMoreBtn.setAttribute(
-    "aria-expanded",
-    "false"
-  );
-
-  readMoreBtn.classList.add(
-    "hidden"
-  );
-
-  queueInfo.textContent =
-    `Anime ${state.currentIndex + 1} de ${state.queue.length} · ${state.watchlist.length} na sua lista`;
-
-  queueInfo.classList.remove(
-    "hidden"
-  );
-
-  requestAnimationFrame(() => {
-    const needsExpansion =
-      animeSynopsis.scrollHeight >
-      synopsisWrapper.clientHeight + 2;
-
-    readMoreBtn.classList.toggle(
-      "hidden",
-      !needsExpansion
-    );
-  });
+  synopsisWrapper.scrollTop = 0;
 }
 
 /* =========================================================
@@ -802,28 +1110,28 @@ function renderCurrentAnime() {
 function renderStats(anime) {
   const stats = [
     {
-      label: "Nota",
+      label: t("stat.score"),
       value: formatScore(
         anime.meanScore
       )
     },
 
     {
-      label: "Popularidade",
+      label: t("stat.popularity"),
       value: formatPopularity(
         anime.popularity
       )
     },
 
     {
-      label: "Episódios",
+      label: t("stat.episodes"),
       value: formatEpisodes(
         anime.episodes
       )
     },
 
     {
-      label: "Formato",
+      label: t("stat.format"),
       value: formatFormat(
         anime.format
       )
@@ -912,7 +1220,8 @@ async function rateCurrentAnime(action) {
         state.aniListAnimeIds.add(anime.id);
         chrome.storage.local.set({ animatchAniListAnimeIds: [...state.aniListAnimeIds] });
       } catch (error) {
-        showError(resultError, `Não foi possível salvar no AniList: ${error.message}`);
+        const message = error.key ? t(error.key, error.vars) : error.message;
+        setError(resultError, { key: "err.saveAniList", vars: { msg: message } });
         return;
       }
     }
@@ -949,12 +1258,17 @@ function handleRequestError(error) {
     return;
   }
 
-  showError(
-    resultError,
+  if (error instanceof AppError) {
+    setError(resultError, { key: error.key, vars: error.vars });
+    return;
+  }
 
-    error.message ||
-    "Ocorreu um erro inesperado."
-  );
+  if (error.message) {
+    setError(resultError, { raw: error.message });
+    return;
+  }
+
+  setError(resultError, { key: "err.unexpected" });
 }
 
 /* =========================================================
@@ -981,16 +1295,38 @@ function openCrunchyrollSearch() {
   });
 }
 
-const VIEWER_QUERY = `query { Viewer { id name avatar { large } } }`;
+/* =========================================================
+   ANILIST PROFILE
+   ========================================================= */
 
-function showConnectedProfile(user, source = anilistToken ? "oauth" : "public") {
-  profileGreeting.textContent = `Olá, ${user.name}!`;
-  authDescription.textContent = source === "oauth"
-    ? "Conta conectada. Suas recomendações ignoram os animes da sua lista, e os títulos salvos podem ser enviados ao AniList."
-    : "Perfil público sincronizado. As recomendações ignoram os títulos da lista pública; novos salvos ficam na lista local do AniMatch.";
-  connectAniListBtn.textContent = "Atualizar perfil ou conexão";
-  disconnectAniListBtn.classList.remove("hidden");
-  authMessage.textContent = source === "oauth" ? "Conta AniList conectada." : "Sincronização pública ativa.";
+function renderProfile() {
+  if (state.profileUser) {
+    const oauth = state.profileSource === "oauth";
+
+    profileGreeting.textContent = t("profile.hello", { name: state.profileUser.name });
+    authDescription.textContent = t(oauth ? "auth.descOauth" : "auth.descPublic");
+    connectAniListBtn.textContent = t("auth.refresh");
+    disconnectAniListBtn.classList.remove("hidden");
+  } else {
+    profileGreeting.textContent = "AniList";
+    authDescription.textContent = t("auth.descDefault");
+    connectAniListBtn.textContent = t("auth.connect");
+    disconnectAniListBtn.classList.add("hidden");
+  }
+
+  connectAniListBtn.classList.remove("hidden");
+
+  authMessage.textContent = state.authMsgKey ? t(state.authMsgKey) : "";
+}
+
+function showConnectedProfile(user, source) {
+  const resolved = source || (anilistToken ? "oauth" : "public");
+
+  state.profileUser = user;
+  state.profileSource = resolved;
+  state.authMsgKey = resolved === "oauth" ? "auth.msgOauth" : "auth.msgPublic";
+
+  renderProfile();
 }
 
 async function connectAniList() {
@@ -1004,39 +1340,12 @@ function disconnectAniList() {
     "animatchAniListToken", "animatchAniListUser", "animatchAniListProfile",
     "animatchAniListAnimeIds", "animatchAniListEntries", "animatchAniListSyncedAt", "animatchAniListSource"
   ]);
-  profileGreeting.textContent = "AniList";
-  authDescription.textContent = "Entre com o AniList para evitar recomendações de animes da sua lista e salvar títulos diretamente no seu perfil.";
-  authMessage.textContent = "Conta desconectada.";
-  disconnectAniListBtn.classList.add("hidden");
-  connectAniListBtn.classList.remove("hidden");
-  connectAniListBtn.textContent = "Conectar com AniList";
-}
 
-/* =========================================================
-   SYNOPSIS EXPANSION
-   ========================================================= */
+  state.profileUser = null;
+  state.profileSource = null;
+  state.authMsgKey = "auth.disconnected";
 
-function toggleSynopsis() {
-  state.synopsisExpanded =
-    !state.synopsisExpanded;
-
-  synopsisWrapper.classList.toggle(
-    "expanded",
-    state.synopsisExpanded
-  );
-
-  readMoreBtn.setAttribute(
-    "aria-expanded",
-
-    String(
-      state.synopsisExpanded
-    )
-  );
-
-  readMoreBtn.textContent =
-    state.synopsisExpanded
-      ? "Ler Menos ↑"
-      : "Ler Mais ↓";
+  renderProfile();
 }
 
 /* =========================================================
@@ -1156,8 +1465,10 @@ genreSearchBtn.addEventListener(
 dismissBtn.addEventListener("click", () => rateCurrentAnime("dismiss"));
 seenBtn.addEventListener("click", () => rateCurrentAnime("seen"));
 watchlistBtn.addEventListener("click", () => rateCurrentAnime("watchlist"));
+
 animeCard.addEventListener("pointerdown", (event) => {
-  if (event.target.closest("button")) return;
+  /* não vira "swipe" ao clicar em botões nem ao ler/selecionar a sinopse */
+  if (event.target.closest("button, .synopsis-wrapper")) return;
   state.swipeStartX = event.clientX;
 });
 animeCard.addEventListener("pointerup", handleCardSwipe);
@@ -1192,11 +1503,6 @@ quickSearchBtn.addEventListener(
 connectAniListBtn.addEventListener("click", connectAniList);
 disconnectAniListBtn.addEventListener("click", disconnectAniList);
 
-readMoreBtn.addEventListener(
-  "click",
-  toggleSynopsis
-);
-
 crunchyrollBtn.addEventListener(
   "click",
   openCrunchyrollSearch
@@ -1205,5 +1511,11 @@ crunchyrollBtn.addEventListener(
 /* =========================================================
    INITIALIZATION
    ========================================================= */
+
+applyStaticTranslations();
+updateThemeButton();
+updateLangButton();
+renderProfile();
+renderResultHeading();
 
 showView("home");

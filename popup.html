@@ -10,69 +10,75 @@
 <body>
   <div class="app-shell">
     <header class="header">
-      <button id="backBtn" class="icon-btn hidden" aria-label="Voltar">
-        ←
-      </button>
+      <button id="backBtn" class="icon-btn hidden" data-i18n-title="header.back">←</button>
 
       <h1 class="logo">
-        <span class="pixel-star">★</span>
+        <img class="logo-icon" src="icons/logo.png" alt="" />
         AniMatch
       </h1>
 
-      <button id="quickSearchBtn" class="icon-btn" aria-label="Perfil e sobre o AniMatch" title="Perfil e sobre o AniMatch">
-        ♙
-      </button>
+      <div class="header-actions">
+        <button id="themeBtn" class="icon-btn" aria-label="Alternar tema" title="Alternar tema">&#9790;&#xFE0E;</button>
+
+        <button id="langBtn" class="icon-btn lang-btn" type="button" data-i18n-title="lang.switch">
+          <span class="lang-opt" data-lang="pt">PT</span>
+          <span class="lang-opt" data-lang="en">EN</span>
+        </button>
+
+        <button id="quickSearchBtn" class="icon-btn" data-i18n-title="header.profile">♙</button>
+      </div>
     </header>
 
     <main>
       <!-- HOME -->
       <section id="homeView" class="view">
         <div class="intro">
-          <p class="eyebrow">YOUR NEXT FAVORITE</p>
-          <h2>Encontre seu próximo anime.</h2>
-          <p class="subtitle">
+          <p class="eyebrow" data-i18n="home.eyebrow">SEU PRÓXIMO FAVORITO</p>
+          <h2 data-i18n="home.title">Encontre seu próximo anime.</h2>
+          <p class="subtitle" data-i18n="home.subtitle">
             Uma nova aventura começa com uma recomendação.
           </p>
         </div>
 
         <form id="searchForm" class="panel search-panel">
-          <label for="animeSearch">Qual anime você curtiu?</label>
+          <label for="animeSearch" data-i18n="search.label">Qual anime você curtiu?</label>
 
           <div class="search-row">
             <input
               id="animeSearch"
               type="text"
+              data-i18n-placeholder="search.placeholder"
               placeholder="Ex: Attack on Titan"
               autocomplete="off"
               required
               maxlength="100"
             >
 
-            <button type="submit" class="primary-btn">
+            <button type="submit" class="primary-btn" data-i18n="search.button">
               Achar parecidos
             </button>
           </div>
 
-          <p class="hint">Recomendações oficiais da comunidade AniList.</p>
+          <p class="hint" data-i18n="search.hint">Recomendações oficiais da comunidade AniList.</p>
         </form>
 
         <section class="panel">
           <div class="section-heading">
             <span class="section-icon">◷</span>
-            <h3>Quanto tempo você tem?</h3>
+            <h3 data-i18n="duration.title">Quanto tempo você tem?</h3>
           </div>
 
           <div id="durationChips" class="chip-group">
-            <button class="chip" data-duration="short">Curto</button>
-            <button class="chip" data-duration="medium">Médio</button>
-            <button class="chip" data-duration="long">Maratona</button>
+            <button class="chip" data-duration="short" data-i18n="duration.short">Curto</button>
+            <button class="chip" data-duration="medium" data-i18n="duration.medium">Médio</button>
+            <button class="chip" data-duration="long" data-i18n="duration.long">Maratona</button>
           </div>
 
-          <p class="hint">
+          <p class="hint" data-i18n="duration.hint">
             Curto: 1–13 · Médio: 14–30 · Maratona: 31+
           </p>
 
-          <button id="durationSearchBtn" class="secondary-btn">
+          <button id="durationSearchBtn" class="secondary-btn" data-i18n="duration.button">
             Explorar por duração
           </button>
         </section>
@@ -80,19 +86,19 @@
         <section class="panel">
           <div class="section-heading">
             <span class="section-icon">✦</span>
-            <h3>Escolha sua vibe</h3>
+            <h3 data-i18n="genre.title">Escolha sua vibe</h3>
           </div>
 
           <div id="genreChips" class="chip-group">
-            <button class="chip" data-genre="Action">Action</button>
-            <button class="chip" data-genre="Psychological">Psychological</button>
-            <button class="chip" data-genre="Comedy">Comedy</button>
-            <button class="chip" data-genre="Drama">Drama</button>
-            <button class="chip" data-genre="Fantasy">Fantasy</button>
-            <button class="chip" data-genre="Sci-Fi">Sci-Fi</button>
+            <button class="chip" data-genre="Action" data-i18n="genre.Action">Ação</button>
+            <button class="chip" data-genre="Psychological" data-i18n="genre.Psychological">Psicológico</button>
+            <button class="chip" data-genre="Comedy" data-i18n="genre.Comedy">Comédia</button>
+            <button class="chip" data-genre="Drama" data-i18n="genre.Drama">Drama</button>
+            <button class="chip" data-genre="Fantasy" data-i18n="genre.Fantasy">Fantasia</button>
+            <button class="chip" data-genre="Sci-Fi" data-i18n="genre.Sci-Fi">Sci-Fi</button>
           </div>
 
-          <button id="genreSearchBtn" class="secondary-btn">
+          <button id="genreSearchBtn" class="secondary-btn" data-i18n="genre.button">
             Explorar essa vibe
           </button>
         </section>
@@ -100,11 +106,12 @@
         <div id="homeError" class="error-message hidden" role="alert"></div>
       </section>
 
+      <!-- PERFIL -->
       <section id="profileView" class="view hidden">
         <div class="result-heading">
-          <p class="eyebrow">SEU ESPAÇO ANIMATCH</p>
-          <h2>Seu perfil otaku</h2>
-          <p class="subtitle">Conecte sua conta para recomendações mais pessoais.</p>
+          <p class="eyebrow" data-i18n="profile.eyebrow">SEU ESPAÇO ANIMATCH</p>
+          <h2 data-i18n="profile.title">Seu perfil otaku</h2>
+          <p class="subtitle" data-i18n="profile.subtitle">Conecte sua conta para recomendações mais pessoais.</p>
         </div>
 
         <section class="panel profile-panel">
@@ -112,45 +119,45 @@
             <span class="section-icon">★</span>
             <h3 id="profileGreeting">AniList</h3>
           </div>
-          <p id="authDescription" class="profile-copy">Entre com o AniList para evitar recomendações de animes da sua lista e salvar títulos diretamente no seu perfil.</p>
-          <button id="connectAniListBtn" class="primary-btn">Conectar com AniList</button>
-          <button id="disconnectAniListBtn" class="secondary-btn hidden">Desconectar</button>
+          <p id="authDescription" class="profile-copy"></p>
+          <button id="connectAniListBtn" class="primary-btn"></button>
+          <button id="disconnectAniListBtn" class="secondary-btn hidden" data-i18n="auth.disconnect">Desconectar</button>
           <p id="authMessage" class="hint" role="status"></p>
         </section>
 
         <section class="panel about-panel">
           <div class="section-heading">
             <span class="section-icon">✦</span>
-            <h3>Sobre o AniMatch</h3>
+            <h3 data-i18n="about.title">Sobre o AniMatch</h3>
           </div>
-          <p>O AniMatch ajuda você a encontrar seu próximo anime de acordo com o que já gosta, o tempo que tem e a vibe que procura.</p>
+          <p data-i18n="about.p1"></p>
           <ul>
-            <li>Recomendações da comunidade AniList</li>
-            <li>Descoberta por similaridade, duração ou gênero</li>
-            <li>Decisões rápidas: passar, já vi ou salvar</li>
+            <li data-i18n="about.li1"></li>
+            <li data-i18n="about.li2"></li>
+            <li data-i18n="about.li3"></li>
           </ul>
-          <p class="hint">Projeto independente, feito com carinho por fãs de anime. Os dados de catálogo vêm da API GraphQL do AniList.</p>
+          <p class="hint" data-i18n="about.note"></p>
         </section>
       </section>
 
       <!-- RESULTADOS -->
       <section id="resultView" class="view hidden">
         <div id="resultHeading" class="result-heading">
-          <p class="eyebrow">ANIMATCH DISCOVERY</p>
-          <h2 id="resultTitle">Sua próxima aventura</h2>
+          <p class="eyebrow" data-i18n="result.eyebrow">ANIMATCH DISCOVERY</p>
+          <h2 id="resultTitle"></h2>
           <p id="resultSubtitle" class="subtitle"></p>
         </div>
 
         <div id="loadingState" class="loading-state hidden">
           <div class="spinner"></div>
-          <p>Consultando o AniList...</p>
+          <p data-i18n="loading">Consultando o AniList...</p>
         </div>
 
         <div id="resultError" class="error-message hidden" role="alert"></div>
 
         <article id="animeCard" class="anime-card hidden">
           <div class="anime-banner">
-            <img id="animeCover" src="" alt="Capa do anime">
+            <img id="animeCover" src="" alt="">
 
             <div class="banner-overlay"></div>
 
@@ -170,36 +177,33 @@
             <div id="animeStats" class="stats-grid"></div>
 
             <div class="synopsis-container">
-              <h3>Sinopse</h3>
+              <h3 data-i18n="card.synopsis">Sinopse</h3>
 
               <div id="synopsisWrapper" class="synopsis-wrapper">
                 <p id="animeSynopsis"></p>
               </div>
 
-              <button
-                id="readMoreBtn"
-                class="read-more-btn hidden"
-                aria-expanded="false"
-              >
-                Ler Mais ↓
-              </button>
+              <div id="synopsisTools" class="synopsis-tools hidden">
+                <span id="synopsisNote" class="synopsis-note"></span>
+                <button id="synopsisToggleBtn" class="synopsis-toggle-btn hidden" type="button"></button>
+              </div>
             </div>
 
             <div class="card-actions">
-              <div class="match-actions" aria-label="O que achou deste anime?">
-                <button id="dismissBtn" class="action-btn dismiss-btn" title="Não tenho interesse">
-                  <span aria-hidden="true">✕</span><span>Passar</span>
+              <div class="match-actions" data-i18n-aria="card.matchLabel">
+                <button id="dismissBtn" class="action-btn dismiss-btn" data-i18n-title="card.dismissTitle">
+                  <span aria-hidden="true">✕</span><span data-i18n="card.dismiss">Passar</span>
                 </button>
-                <button id="seenBtn" class="action-btn seen-btn" title="Marcar como já visto">
-                  <span aria-hidden="true">✓</span><span>Já vi</span>
+                <button id="seenBtn" class="action-btn seen-btn" data-i18n-title="card.seenTitle">
+                  <span aria-hidden="true">✓</span><span data-i18n="card.seen">Já vi</span>
                 </button>
-                <button id="watchlistBtn" class="action-btn watchlist-btn" title="Adicionar à minha lista">
-                  <span aria-hidden="true">＋</span><span>Minha lista</span>
+                <button id="watchlistBtn" class="action-btn watchlist-btn" data-i18n-title="card.watchlistTitle">
+                  <span aria-hidden="true">＋</span><span data-i18n="card.watchlist">Minha lista</span>
                 </button>
               </div>
-              <p class="swipe-hint">← passar · adicionar à lista →</p>
+              <p class="swipe-hint" data-i18n="card.swipeHint">← passar · adicionar à lista →</p>
 
-              <button id="crunchyrollBtn" class="secondary-btn">
+              <button id="crunchyrollBtn" class="secondary-btn" data-i18n="card.crunchyroll">
                 Assistir na Crunchyroll
               </button>
             </div>
@@ -208,7 +212,7 @@
 
         <div id="queueInfo" class="queue-info hidden"></div>
         <details id="savedList" class="saved-list hidden">
-          <summary>Minha lista <span id="savedListCount">0</span></summary>
+          <summary><span data-i18n="saved.summary">Minha lista</span> <span id="savedListCount">0</span></summary>
           <ul id="savedListItems"></ul>
         </details>
       </section>
@@ -220,6 +224,7 @@
     </footer>
   </div>
 
+  <script src="i18n.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

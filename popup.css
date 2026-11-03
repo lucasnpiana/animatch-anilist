@@ -1,16 +1,129 @@
+/* =========================
+   FONTES (arquivos locais na pasta fonts/)
+   Space Grotesk: texto, títulos e botões
+   DM Mono: detalhes técnicos (rótulos, dicas, rodapé)
+   ========================= */
 
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("fonts/SpaceGrotesk-VariableFont_wght.ttf") format("truetype");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Mono";
+  src: url("fonts/DMMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* =========================
+   TEMAS (claro / escuro)
+   Amarelo = ação principal | Verde = identidade | Azul = destaque
+   Claro: azul-marinho nos detalhes (máximo contraste)
+   Escuro: fundo preto com amarelo, verde e azul vivos
+   ========================= */
+
+/* Tema claro (padrão) */
 :root {
-  --bg: #032e23;
-  --panel: #065f46;
-  --panel-light: #087653;
-  --yellow: #fde047;
-  --cream: #fef3c7;
-  --muted: #d6cfa8;
-  --border: #fde047;
-  --danger: #ff8a80;
+  --bg: #fbf8ec;
+  --bg-inset: #f1ecd6;
+  --panel: #ffffff;
+  --panel-hover: #eef2fb;
+  --border: #dcd7bd;
+  --border-strong: #7f8fb3;
+
+  --text: #0b1b3a;
+  --muted: #4a5670;
+  --label: #002776;        /* azul da bandeira nos títulos e rótulos */
+  --eyebrow: #006b2b;
+  --icon: #002776;
+  --link: #002776;
+  --placeholder: #7b849a;
+
+  --accent: #ffdf3d;       /* amarelo: ação principal nos dois temas */
+  --on-accent: #002776;
+  --green: #009c3b;
+  --blue: #002776;
+  --focus: #002776;
+
+  --danger: #b3261e;
+  --danger-bg: rgba(179, 38, 30, 0.08);
+  --ok: #17692f;
+
+  --shadow: 3px 3px 0 rgba(0, 39, 118, 0.12);
+  --btn-shadow: 2px 2px 0 #002776;
 
   --radius: 12px;
-  --font: "Courier New", Courier, monospace;
+  --font: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "DM Mono", ui-monospace, Consolas, monospace;
+}
+
+/* Tema escuro automático (sistema em escuro e usuário não forçou claro) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #050505;
+    --bg-inset: #000000;
+    --panel: #121212;
+    --panel-hover: #1c1c1c;
+    --border: #2a2a2a;
+    --border-strong: #454545;
+
+    --text: #f2f2f2;
+    --muted: #a8a8a8;
+    --label: #ffdf3d;
+    --eyebrow: #19c35a;
+    --icon: #19c35a;
+    --link: #7aa2ff;
+    --placeholder: #7a7a7a;
+
+    --accent: #ffdf3d;
+    --on-accent: #0a0a0a;
+    --green: #009c3b;
+    --blue: #3d6bff;
+    --focus: #7aa2ff;
+
+    --danger: #ff8a80;
+    --danger-bg: rgba(255, 80, 60, 0.1);
+    --ok: #5fe08a;
+
+    --shadow: 3px 3px 0 #1a1a1a;
+    --btn-shadow: 2px 2px 0 #009c3b;
+  }
+}
+
+/* Tema escuro manual (toggle) */
+:root[data-theme="dark"] {
+  --bg: #050505;
+  --bg-inset: #000000;
+  --panel: #121212;
+  --panel-hover: #1c1c1c;
+  --border: #2a2a2a;
+  --border-strong: #454545;
+
+  --text: #f2f2f2;
+  --muted: #a8a8a8;
+  --label: #ffdf3d;
+  --eyebrow: #19c35a;
+  --icon: #19c35a;
+  --link: #7aa2ff;
+  --placeholder: #7a7a7a;
+
+  --accent: #ffdf3d;
+  --on-accent: #0a0a0a;
+  --green: #009c3b;
+  --blue: #3d6bff;
+  --focus: #7aa2ff;
+
+  --danger: #ff8a80;
+  --danger-bg: rgba(255, 80, 60, 0.1);
+  --ok: #5fe08a;
+
+  --shadow: 3px 3px 0 #1a1a1a;
+  --btn-shadow: 2px 2px 0 #009c3b;
 }
 
 /* =========================
@@ -43,7 +156,7 @@ body {
   overflow: hidden;
 
   background: var(--bg);
-  color: var(--cream);
+  color: var(--text);
 
   font-family: var(--font);
   font-size: 13px;
@@ -80,9 +193,10 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Azul da bandeira como anel de foco */
 button:focus-visible,
 input:focus-visible {
-  outline: 2px solid var(--yellow);
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -104,7 +218,7 @@ input:focus-visible {
   display: flex;
   flex-direction: column;
 
-  border: 2px solid var(--yellow);
+  border: 1px solid var(--border);
 
   background: var(--bg);
 
@@ -116,6 +230,8 @@ input:focus-visible {
    ========================= */
 
 .header {
+  position: relative;
+
   height: 58px;
   min-height: 58px;
 
@@ -123,32 +239,54 @@ input:focus-visible {
   align-items: center;
   justify-content: space-between;
 
-  padding: 0 12px;
+  padding: 0 14px;
 
   background: var(--bg);
 
-  border-bottom: 2px solid var(--yellow);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Faixa verde / amarelo / azul */
+.header::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+
+  height: 3px;
+
+  background: linear-gradient(
+    to right,
+    var(--green) 0 50%,
+    var(--accent) 50% 80%,
+    var(--blue) 80% 100%
+  );
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
   margin: 0;
 
   font-size: 23px;
-  font-weight: 900;
+  font-weight: 700;
 
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
 
-  color: var(--yellow);
-
-  text-shadow: 2px 2px 0 #01412f;
+  color: var(--label);
 }
 
-.pixel-star {
-  display: inline-block;
+.logo-icon {
+  width: 26px;
+  height: 26px;
 
-  font-size: 20px;
+  flex-shrink: 0;
 
-  margin-right: 3px;
+  display: block;
 }
 
 .icon-btn {
@@ -159,14 +297,25 @@ input:focus-visible {
   align-items: center;
   justify-content: center;
 
-  border: 1px solid var(--yellow);
+  border: 1px solid var(--border-strong);
 
   background: var(--panel);
-  color: var(--yellow);
+  color: var(--label);
 
   border-radius: 6px;
 
-  font-size: 20px;
+  font-size: 18px;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: var(--panel-hover);
+}
+
+/* Grupo da direita: tema + perfil */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* =========================
@@ -192,12 +341,12 @@ main {
   overflow-y: auto;
   overflow-x: hidden;
 
-  padding: 10px;
+  padding: 14px 12px;
 
-  gap: 12px;
+  gap: 16px;
 
   scrollbar-width: thin;
-  scrollbar-color: var(--yellow) var(--bg);
+  scrollbar-color: var(--border-strong) var(--bg);
 }
 
 .view::-webkit-scrollbar {
@@ -209,7 +358,7 @@ main {
 }
 
 .view::-webkit-scrollbar-thumb {
-  background: var(--yellow);
+  background: var(--border-strong);
   border-radius: 6px;
 }
 
@@ -218,14 +367,14 @@ main {
    ========================= */
 
 .intro {
-  padding: 3px 0 4px;
+  padding: 2px 0 2px;
 }
 
 .eyebrow {
-  color: var(--yellow);
+  color: var(--eyebrow);
 
-  font-size: 10px;
-  letter-spacing: 2px;
+  font-size: 11px;
+  letter-spacing: 1.5px;
 
   font-weight: bold;
 
@@ -244,12 +393,14 @@ p {
   line-height: 1.25;
 
   margin-bottom: 6px;
+
+  color: var(--text);
 }
 
 .subtitle {
   color: var(--muted);
 
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
 
   margin-bottom: 0;
@@ -268,26 +419,26 @@ p {
   border: 1px solid var(--border);
   border-radius: var(--radius);
 
-  padding: 12px;
+  padding: 14px;
 
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow);
 }
 
 .search-panel label {
   display: block;
 
-  color: var(--yellow);
+  color: var(--label);
 
   font-weight: bold;
 
-  margin-bottom: 9px;
+  margin-bottom: 10px;
 }
 
 .search-row {
   display: flex;
   flex-direction: column;
 
-  gap: 8px;
+  gap: 10px;
 
   width: 100%;
 }
@@ -300,46 +451,52 @@ input {
   width: 100%;
   min-width: 0;
 
-  border: 1px solid var(--yellow);
+  border: 1px solid var(--border-strong);
   border-radius: 6px;
 
-  background: var(--bg);
-  color: var(--cream);
+  background: var(--bg-inset);
+  color: var(--text);
 
   padding: 10px;
 }
 
+input:focus {
+  border-color: var(--focus);
+}
+
 input::placeholder {
-  color: #9bb8a8;
+  color: var(--placeholder);
 }
 
 /* =========================
    BUTTONS
    ========================= */
 
+/* Ação principal: sempre amarelo */
 .primary-btn {
   width: 100%;
 
-  background: var(--yellow);
-  color: var(--bg);
+  background: var(--accent);
+  color: var(--on-accent);
 
-  border: 2px solid var(--yellow);
+  border: 2px solid var(--on-accent);
   border-radius: 6px;
 
   padding: 10px 12px;
 
   font-weight: bold;
 
-  box-shadow: 2px 2px 0 #022017;
+  box-shadow: var(--btn-shadow);
 }
 
+/* Ação secundária: só contorno */
 .secondary-btn {
   width: 100%;
 
-  background: var(--panel);
-  color: var(--yellow);
+  background: transparent;
+  color: var(--label);
 
-  border: 1px solid var(--yellow);
+  border: 1px solid var(--border-strong);
   border-radius: 6px;
 
   padding: 9px 10px;
@@ -348,11 +505,11 @@ input::placeholder {
 }
 
 .secondary-btn:hover:not(:disabled) {
-  background: var(--panel-light);
+  background: var(--panel-hover);
 }
 
 .panel > .secondary-btn {
-  margin-top: 11px;
+  margin-top: 12px;
 }
 
 .profile-panel .secondary-btn {
@@ -362,8 +519,8 @@ input::placeholder {
 .profile-copy,
 .about-panel > p,
 .about-panel li {
-  color: var(--cream);
-  font-size: 11px;
+  color: var(--text);
+  font-size: 12px;
   line-height: 1.55;
 }
 
@@ -383,10 +540,10 @@ input::placeholder {
 .hint {
   color: var(--muted);
 
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.4;
 
-  margin: 8px 0 0;
+  margin: 10px 0 0;
 }
 
 /* =========================
@@ -399,7 +556,7 @@ input::placeholder {
 
   gap: 8px;
 
-  margin-bottom: 11px;
+  margin-bottom: 12px;
 }
 
 .section-heading h3 {
@@ -407,11 +564,11 @@ input::placeholder {
 
   margin: 0;
 
-  color: var(--cream);
+  color: var(--text);
 }
 
 .section-icon {
-  color: var(--yellow);
+  color: var(--icon);
 
   font-size: 18px;
 }
@@ -424,27 +581,32 @@ input::placeholder {
   display: flex;
   flex-wrap: wrap;
 
-  gap: 7px;
+  gap: 8px;
 }
 
 .chip {
-  background: var(--bg);
-  color: var(--cream);
+  background: transparent;
+  color: var(--text);
 
-  border: 1px solid #74b49c;
+  border: 1px solid var(--border-strong);
   border-radius: 20px;
 
-  padding: 6px 10px;
+  padding: 6px 12px;
 
-  font-size: 11px;
+  font-size: 12px;
 }
 
+.chip:hover:not(:disabled) {
+  background: var(--panel-hover);
+}
+
+/* Selecionado: preenchido em amarelo */
 .chip.selected {
-  background: var(--yellow);
+  background: var(--accent);
 
-  border-color: var(--yellow);
+  border-color: var(--on-accent);
 
-  color: var(--bg);
+  color: var(--on-accent);
 
   font-weight: bold;
 }
@@ -459,7 +621,7 @@ input::placeholder {
 
   width: 100%;
 
-  border-top: 1px solid rgba(253, 224, 71, 0.35);
+  border-top: 1px solid var(--border);
 
   display: flex;
   justify-content: space-between;
@@ -469,11 +631,12 @@ input::placeholder {
 
   color: var(--muted);
 
-  font-size: 9px;
+  font-size: 10px;
 }
 
 .footer-highlight {
-  color: var(--yellow);
+  color: var(--label);
+  font-weight: bold;
 }
 
 /* =========================
@@ -486,7 +649,7 @@ input::placeholder {
 }
 
 .result-heading h2 {
-  color: var(--yellow);
+  color: var(--label);
 }
 
 /* =========================
@@ -504,15 +667,15 @@ input::placeholder {
 
   gap: 12px;
 
-  color: var(--yellow);
+  color: var(--label);
 }
 
 .spinner {
   width: 36px;
   height: 36px;
 
-  border: 4px solid rgba(253, 224, 71, 0.2);
-  border-top-color: var(--yellow);
+  border: 4px solid var(--border);
+  border-top-color: var(--icon);
 
   border-radius: 50%;
 
@@ -537,7 +700,7 @@ input::placeholder {
 
   color: var(--danger);
 
-  background: rgba(255, 0, 0, 0.08);
+  background: var(--danger-bg);
 
   line-height: 1.5;
 
@@ -554,12 +717,12 @@ input::placeholder {
 
   background: var(--panel);
 
-  border: 1px solid var(--yellow);
+  border: 1px solid var(--border);
   border-radius: 10px;
 
   overflow: hidden;
 
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow);
   touch-action: pan-y;
 }
 
@@ -575,11 +738,7 @@ input::placeholder {
 
   overflow: hidden;
 
-  background: linear-gradient(
-    135deg,
-    #065f46,
-    #032e23
-  );
+  background: linear-gradient(135deg, #1a1a1a, #000000);
 }
 
 .anime-banner img {
@@ -598,8 +757,8 @@ input::placeholder {
 
   background: linear-gradient(
     to bottom,
-    rgba(3, 46, 35, 0.05),
-    rgba(3, 46, 35, 0.75)
+    rgba(0, 0, 0, 0.05),
+    rgba(0, 0, 0, 0.75)
   );
 }
 
@@ -609,14 +768,14 @@ input::placeholder {
   top: 9px;
   right: 9px;
 
-  background: var(--yellow);
-  color: var(--bg);
+  background: var(--accent);
+  color: var(--on-accent);
 
   padding: 5px 8px;
 
   border-radius: 5px;
 
-  font-size: 10px;
+  font-size: 11px;
   font-weight: bold;
 
   z-index: 2;
@@ -627,7 +786,7 @@ input::placeholder {
    ========================= */
 
 .anime-content {
-  padding: 9px;
+  padding: 12px;
 }
 
 .anime-title-row {
@@ -643,7 +802,7 @@ input::placeholder {
 
   margin: 0;
 
-  color: var(--yellow);
+  color: var(--label);
 
   overflow-wrap: anywhere;
 }
@@ -656,19 +815,17 @@ input::placeholder {
 
   margin-top: 5px;
 
-  background: var(--yellow);
+  background: var(--icon);
 
   border-radius: 50%;
-
-  box-shadow: 0 0 6px var(--yellow);
 }
 
 .native-title {
-  font-size: 10px;
+  font-size: 11px;
 
   color: var(--muted);
 
-  margin: 3px 0 7px;
+  margin: 3px 0 9px;
 
   overflow-wrap: anywhere;
 }
@@ -682,15 +839,15 @@ input::placeholder {
 
   grid-template-columns: repeat(4, minmax(0, 1fr));
 
-  gap: 5px;
+  gap: 6px;
 
-  margin-bottom: 7px;
+  margin-bottom: 10px;
 }
 
 .stat {
-  background: var(--bg);
+  background: var(--bg-inset);
 
-  border: 1px solid rgba(253, 224, 71, 0.35);
+  border: 1px solid var(--border);
   border-radius: 6px;
 
   padding: 7px 4px;
@@ -705,15 +862,15 @@ input::placeholder {
 
   color: var(--muted);
 
-  font-size: 9px;
+  font-size: 10px;
 
   margin-bottom: 4px;
 }
 
 .stat-value {
-  color: var(--yellow);
+  color: var(--text);
 
-  font-size: 11px;
+  font-size: 12px;
   font-weight: bold;
 
   overflow-wrap: anywhere;
@@ -726,45 +883,47 @@ input::placeholder {
 .synopsis-container h3 {
   font-size: 12px;
 
-  color: var(--yellow);
+  color: var(--label);
 
   margin-bottom: 6px;
 }
 
 .synopsis-wrapper {
-  max-height: 42px;
-
-  overflow: hidden;
-
-  transition: max-height 0.35s ease;
+  max-height: 130px;
+  overflow-y: auto;
+  padding-right: 6px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
 }
 
-.synopsis-wrapper.expanded {
-  max-height: 420px;
+.synopsis-wrapper::-webkit-scrollbar {
+  width: 6px;
 }
 
-.synopsis-wrapper p {
-  color: var(--cream);
+.synopsis-wrapper::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 6px;
+}
 
-  font-size: 11px;
-  line-height: 1.6;
-
-  margin: 0;
-
-  overflow-wrap: anywhere;
+/* o botão deixa de ser necessário */
+.read-more-btn {
+  display: none !important;
 }
 
 .read-more-btn {
   border: 0;
 
   background: transparent;
-  color: var(--yellow);
+  color: var(--link);
 
   padding: 3px 0;
 
   font-weight: bold;
 
-  font-size: 10px;
+  font-size: 11px;
+
+  text-decoration: underline;
 }
 
 /* =========================
@@ -775,15 +934,15 @@ input::placeholder {
   display: flex;
   flex-direction: column;
 
-  gap: 5px;
+  gap: 8px;
 
-  margin-top: 7px;
+  margin-top: 10px;
 }
 
 .match-actions {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 7px;
+  gap: 8px;
 }
 
 .action-btn {
@@ -794,12 +953,16 @@ input::placeholder {
   align-items: center;
   justify-content: center;
   gap: 3px;
-  border: 1px solid var(--yellow);
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
-  background: var(--bg);
-  color: var(--cream);
-  font-size: 10px;
+  background: transparent;
+  color: var(--text);
+  font-size: 11px;
   font-weight: bold;
+}
+
+.action-btn:hover:not(:disabled) {
+  background: var(--panel-hover);
 }
 
 .action-btn span:first-child {
@@ -807,15 +970,24 @@ input::placeholder {
   line-height: 1;
 }
 
-.dismiss-btn span:first-child { color: #ff9b91; }
-.seen-btn span:first-child { color: #9be7b2; }
-.watchlist-btn { background: var(--yellow); color: var(--bg); }
+.dismiss-btn span:first-child { color: var(--danger); }
+.seen-btn span:first-child { color: var(--ok); }
+
+.watchlist-btn {
+  background: var(--accent);
+  border-color: var(--on-accent);
+  color: var(--on-accent);
+}
+
+.watchlist-btn:hover:not(:disabled) {
+  background: var(--accent);
+}
 
 .swipe-hint {
   margin: -2px 0 0;
   color: var(--muted);
   text-align: center;
-  font-size: 9px;
+  font-size: 10px;
 }
 
 .next-btn {
@@ -836,7 +1008,7 @@ input::placeholder {
 
   text-align: center;
 
-  font-size: 10px;
+  font-size: 11px;
 
   padding: 3px;
 }
@@ -844,16 +1016,16 @@ input::placeholder {
 .saved-list {
   flex-shrink: 0;
   background: var(--panel);
-  border: 1px solid rgba(253, 224, 71, 0.55);
+  border: 1px solid var(--border);
   border-radius: 7px;
   padding: 8px 10px;
-  color: var(--cream);
-  font-size: 10px;
+  color: var(--text);
+  font-size: 11px;
 }
 
 .saved-list summary {
   cursor: pointer;
-  color: var(--yellow);
+  color: var(--label);
   font-weight: bold;
 }
 
@@ -863,6 +1035,27 @@ input::placeholder {
   margin: 8px 0 0;
   padding-left: 18px;
   line-height: 1.6;
+}
+
+/* =========================
+   FONTE MONO (só nos detalhes)
+   ========================= */
+
+.eyebrow,
+.hint,
+.stat-label,
+.stat-value,
+.queue-info,
+.footer,
+.swipe-hint {
+  font-family: var(--font-mono);
+}
+
+/* DM Mono só tem peso 400; 500 usa o mesmo arquivo sem "negrito falso" */
+.eyebrow,
+.stat-value,
+.footer-highlight {
+  font-weight: 500;
 }
 
 /* =========================
@@ -876,4 +1069,66 @@ input::placeholder {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+  /* =========================================================
+   ADICIONAR NO FINAL DO popup.css
+   (botão de idioma + controles da sinopse traduzida)
+   ========================================================= */
+
+/* Botão de idioma PT | EN no cabeçalho */
+.lang-btn {
+  width: auto;
+  gap: 2px;
+  padding: 0 3px;
+
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.lang-opt {
+  padding: 4px 5px;
+  border-radius: 4px;
+
+  color: var(--muted);
+}
+
+.lang-opt.active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: bold;
+}
+
+/* Linha abaixo da sinopse: aviso de tradução + botão ver original */
+.synopsis-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  margin-top: 4px;
+}
+
+.synopsis-note {
+  color: var(--muted);
+
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.synopsis-toggle-btn {
+  border: 0;
+
+  background: transparent;
+  color: var(--link);
+
+  padding: 3px 0;
+
+  font-weight: bold;
+  font-size: 11px;
+
+  text-decoration: underline;
+  white-space: nowrap;
 }
