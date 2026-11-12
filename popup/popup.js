@@ -1330,7 +1330,7 @@ function showConnectedProfile(user, source) {
 }
 
 async function connectAniList() {
-  chrome.tabs.create({ url: chrome.runtime.getURL("auth.html") });
+  chrome.tabs.create({ url: chrome.runtime.getURL("auth/auth.html") });
 }
 
 function disconnectAniList() {

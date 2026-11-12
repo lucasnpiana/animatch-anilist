@@ -1,12 +1,12 @@
 @font-face {
   font-family: "Space Grotesk";
-  src: url("fonts/Space_Grotesk/SpaceGrotesk-VariableFont_wght.ttf") format("truetype");
+  src: url("../assets/fonts/Space_Grotesk/SpaceGrotesk-VariableFont_wght.ttf") format("truetype");
   font-weight: 300 700;
   font-display: swap;
 }
 @font-face {
   font-family: "DM Mono";
-  src: url("fonts/DM_Mono/DMMono-Regular.ttf") format("truetype");
+  src: url("../assets/fonts/DM_Mono/DMMono-Regular.ttf") format("truetype");
   font-weight: 400;
   font-display: swap;
 }
