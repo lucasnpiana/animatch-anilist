@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="icons/logo.png" alt="Logo AniMatch" width="150">
+  <img src="assets/icons/logo.png" alt="Logo AniMatch" width="150">
   <h1>AniMatch</h1>
   <p>Encontre seu próximo anime de acordo com seus gostos, seu tempo e sua vibe.</p>
 </div>
