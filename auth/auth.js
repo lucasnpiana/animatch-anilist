@@ -2,7 +2,9 @@
 
 const API_URL = "https://graphql.anilist.co";
 const clientIdInput = document.querySelector("#clientId");
-const redirectUri = chrome.identity.getRedirectURL();
+const redirectUri = typeof chrome.identity.getRedirectURL === "function"
+  ? chrome.identity.getRedirectURL()
+  : `https://${chrome.runtime.id}.chromiumapp.org/`;
 const status = document.querySelector("#status");
 const loginBtn = document.querySelector("#loginBtn");
 const profileInput = document.querySelector("#profileInput");
